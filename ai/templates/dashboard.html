@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+    <meta charset="UTF-8">
+        <title>Sentimentos – Dashboard</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <style>
+            body   { font-family: system-ui, sans-serif; margin: 2rem auto; max-width: 960px; }
+            canvas { margin-bottom: 48px; }
+            h2     { text-align: center; }
+        </style>
+    </head>
+    <body>
+        <h1 style="text-align:center">Dashboard de Sentimentos</h1>
+
+        <h2>Últimos 5 dias – Positivo × Negativo</h2>
+        <canvas id="barDays" height="120"></canvas>
+
+        <h2>Últimas 24 h – Distribuição horária</h2>
+        <canvas id="barHours" height="120"></canvas>
+
+        <h2>Total Geral</h2>
+        <canvas id="pieOverall" height="80"></canvas>
+
+
+        <script>
+            async function loadMetrics() {
+                const res  = await fetch("/metrics");
+                const json = await res.json();
+
+                // barras por dia 
+                const labelsDays   = json.daily.map(d => d.day);
+                const dataPosDays  = json.daily.map(d => d.positive);
+                const dataNegDays  = json.daily.map(d => d.negative);
+
+                new Chart(document.getElementById('barDays'), {
+                    type: 'bar',
+                    data: {
+                    labels: labelsDays,
+                    datasets: [
+                        { label: 'Positivas', data: dataPosDays },
+                        { label: 'Negativas', data: dataNegDays }
+                    ]
+                    },
+                    options: { responsive: true, plugins: { legend: { position: 'top' } } }
+                });
+
+                // barras por hora 
+                const labelsHours  = json.hourly.map(h => h.hour);
+                const dataPosHours = json.hourly.map(h => h.positive);
+                const dataNegHours = json.hourly.map(h => h.negative);
+                const dataNeuHours = json.hourly.map(h => h.neutral);
+
+                new Chart(document.getElementById('barHours'), {
+                    type: 'bar',
+                    data: {
+                    labels: labelsHours,
+                    datasets: [
+                        { label: 'Positivas', data: dataPosHours },
+                        { label: 'Negativas', data: dataNegHours },
+                        { label: 'Neutras',   data: dataNeuHours }
+                    ]
+                    },
+                    options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' } },
+                    scales: { x: { stacked: true }, y: { stacked: true } }   // barras empilhadas
+                    }
+                });
+
+                // pizza geral
+                const overall = json.overall;
+                const pieLabels = Object.keys(overall).map(l => l.charAt(0).toUpperCase() + l.slice(1));
+                const pieData   = Object.values(overall);
+
+                new Chart(document.getElementById('pieOverall'), {
+                    type: 'pie',
+                    data: { labels: pieLabels, datasets: [{ data: pieData }] },
+                    options: { responsive: true }
+                });
+            }
+
+            loadMetrics();
+        </script>
+    </body>
+</html>
