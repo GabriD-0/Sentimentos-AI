@@ -1,5 +1,4 @@
 import os
-import sys
 from pprint import pprint
 from dotenv import load_dotenv
 import psycopg2
@@ -35,3 +34,8 @@ finally:
         conn.close()
     except Exception:
         pass
+
+
+
+
+# ssh -N -L 5433:localhost:5432 gabriel@168.231.98.84
