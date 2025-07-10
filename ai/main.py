@@ -88,7 +88,6 @@ def metrics():
             else:
                 hourly[hora]["neutral"] = qtd
 
-        # C) Pizza – totais gerais
         cur.execute("""
             SELECT sentimento, COUNT(*)::INT
             FROM mensagens
@@ -96,7 +95,6 @@ def metrics():
         """)
         overall = { (row[0] or "").lower(): row[1] for row in cur.fetchall() }
 
-    # serialização (string) para JSON
     daily_serial  = [
         {"day": dia.strftime("%Y-%m-%d"), **vals}
         for dia, vals in sorted(daily.items())
