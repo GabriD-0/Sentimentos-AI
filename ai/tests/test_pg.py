@@ -34,8 +34,3 @@ finally:
         conn.close()
     except Exception:
         pass
-
-
-
-
-# ssh -N -L 5433:localhost:5432 gabriel@168.231.98.84
